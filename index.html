@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NVR Simulator — watch a recorder fill up, degrade and fail</title>
+<meta name="description" content="A scaled-down NVR you can break: four cameras, a RAID array, retention versus capacity, and a playback timeline that shows exactly what was recorded.">
+<meta name="theme-color" content="#08090c">
+<link rel="canonical" href="https://vishnuvsdevtech.github.io/nvr-simulator/">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand"><span class="dot"></span>NVR SIMULATOR</div>
+  <div class="clock mono"><span id="vclock">00:00:00</span><span class="sep">·</span><span id="speedLbl">3×</span></div>
+  <div class="bar-right">
+    <button class="btn" id="pause">Pause</button>
+    <button class="btn" id="reset">Reset</button>
+  </div>
+</header>
+
+<main class="grid">
+
+  <!-- live -->
+  <section class="panel live">
+    <div class="panel-head"><h2>Live view</h2><span class="hint mono">sub-stream · what the operator sees</span></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <!-- storage -->
+  <section class="panel storage">
+    <div class="panel-head"><h2>Storage</h2><span class="hint mono" id="raidLbl">RAID 5</span></div>
+    <div class="bays" id="bays"></div>
+    <div class="bar-used"><i id="usedBar"></i></div>
+    <div class="kv mono">
+      <span>used</span><b id="usedTxt">0 / 0 MB</b>
+      <span>write rate</span><b id="rateTxt">0 MB/s</b>
+      <span>policy retention</span><b id="policyTxt">15 min</b>
+      <span>actual retention</span><b id="actualTxt">0 min</b>
+      <span>segments</span><b id="segsTxt">0</b>
+      <span>state</span><b id="stateTxt">recording</b>
+    </div>
+    <div class="callout" id="storageNote">Retention is whatever is <em>smaller</em>: the policy, or the disk.</div>
+  </section>
+
+  <!-- controls -->
+  <section class="panel controls">
+    <div class="panel-head"><h2>Controls</h2><span class="hint mono">break it on purpose</span></div>
+
+    <label class="row"><span class="mono">speed</span>
+      <input id="speed" type="range" min="1" max="30" step="1" value="3">
+      <b class="mono" id="speedVal">3×</b></label>
+
+    <label class="row"><span class="mono">bitrate / camera</span>
+      <input id="bitrate" type="range" min="1" max="8" step="1" value="2">
+      <b class="mono" id="bitrateVal">2 Mbps</b></label>
+
+    <label class="row"><span class="mono">policy retention</span>
+      <input id="retention" type="range" min="5" max="60" step="5" value="15">
+      <b class="mono" id="retentionVal">15 min</b></label>
+
+    <label class="row"><span class="mono">array</span>
+      <select id="raid">
+        <option value="single">single disk</option>
+        <option value="5" selected>RAID 5 · survives 1</option>
+        <option value="6">RAID 6 · survives 2</option>
+      </select></label>
+
+    <div class="faults">
+      <button class="btn danger" id="killCam">Kill a camera</button>
+      <button class="btn danger" id="killDisk">Unplug a disk</button>
+      <button class="btn danger" id="corrupt">Corrupt a segment</button>
+      <button class="btn" id="restore">Restore all</button>
+    </div>
+    <div class="log mono" id="log"></div>
+  </section>
+
+  <!-- playback -->
+  <section class="panel playback">
+    <div class="panel-head"><h2>Playback · the index</h2><span class="hint mono">click a segment to inspect it</span></div>
+    <div class="lanes" id="lanes"></div>
+    <div class="inspector mono" id="inspector">No segment selected. Green = recorded, amber = corrupt, empty = no data.</div>
+  </section>
+
+</main>
+
+<footer class="foot mono">
+  <span>NVR Simulator · scaled sandbox</span>
+  <span>512 MB array · 2 s segments · virtual clock</span>
+</footer>
+
+<script src="assets/sim.js"></script>
+</body>
+</html>
